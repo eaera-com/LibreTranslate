@@ -4,6 +4,7 @@ import os
 import re
 import tempfile
 import uuid
+from json import loads as json_loads
 from datetime import datetime
 from functools import wraps
 from html import unescape
@@ -152,6 +153,38 @@ def filter_unique(seq, extra):
     seen = set({extra, ""})
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
+
+def extract_text(q: dict):
+    # Recusive extract text from dict
+    results = []
+    for k, v in q.items():
+        if isinstance(v, dict):
+            results.extend(extract_text(v))
+        elif isinstance(v, list):
+            for i in v:
+                results.extend(extract_text(i))
+            else:
+                results.append(v)
+    return results
+
+def translate_dict(translator, q: dict, num_alternatives: int, text_format: str = "text"):
+    translated = {}
+    alternatives = {}
+    for k, v in q.items():
+        if isinstance(v, dict):
+            translated[k], alternatives[k] = translate_dict(translator, v, num_alternatives)
+        elif isinstance(v, list):
+            for i in v:
+                translated[k], alternatives[k] = translate_dict(translator, i, num_alternatives)
+        else:
+            if text_format == "html":
+                translated[k] = unescape(str(translate_html(translator, v)))
+                alternatives[k] = []
+            else:
+                hypotheses = translator.hypotheses(v, num_alternatives + 1)
+                translated[k] = unescape(improve_translation_formatting(v, hypotheses[0].value))
+                alternatives[k] = filter_unique([unescape(improve_translation_formatting(v, hypotheses[i].value)) for i in range(1, len(hypotheses))], translated[k])
+    return translated, alternatives    
 
 def create_app(args):
     from libretranslate.init import boot
@@ -473,6 +506,8 @@ def create_app(args):
                   example: Hello world!
                 - type: array
                   example: ['Hello world!']
+                - type: dict 
+                  example: {'hello': 'Hello world!', 'hi': 'Hi!', 'goodbye': 'Goodbye!'}
             required: true
             description: Text(s) to translate
           - in: formData
@@ -527,6 +562,7 @@ def create_app(args):
                   oneOf:
                     - type: string
                     - type: array
+                    - type: dict
                   description: Translated text(s)
           400:
             description: Invalid request
@@ -574,6 +610,10 @@ def create_app(args):
             num_alternatives = int(json.get("alternatives", 0))
         else:
             q = request.values.get("q")
+            try:
+              q = json_loads(q)
+            except:
+              pass
             source_lang = request.values.get("source")
             target_lang = request.values.get("target")
             text_format = request.values.get("format")
@@ -594,7 +634,7 @@ def create_app(args):
         if args.alternatives_limit != -1 and num_alternatives > args.alternatives_limit:
             abort(400, description=_("Invalid request: %(name)s parameter must be <= %(value)s", name='alternatives', value=args.alternatives_limit))
 
-        if not request.is_json:
+        if isinstance(q, str):
             # Normalize line endings to UNIX style (LF) only so we can consistently
             # enforce character limits.
             # https://www.rfc-editor.org/rfc/rfc2046#section-4.1.1
@@ -602,17 +642,17 @@ def create_app(args):
 
         char_limit = get_char_limit(args.char_limit, api_keys_db)
 
-        batch = isinstance(q, list)
+        batch = isinstance(q, list) or isinstance(q, dict)
+
+        src_texts = extract_text(q) if isinstance(q, dict) else q if batch else [q]
 
         if batch and args.batch_limit != -1:
-            batch_size = len(q)
+            batch_size = len(src_texts)
             if args.batch_limit < batch_size:
                 abort(
                     400,
                     description=_("Invalid request: request (%(size)s) exceeds text limit (%(limit)s)", size=batch_size, limit=args.batch_limit),
                 )
-
-        src_texts = q if batch else [q]
 
         if char_limit != -1:
             for text in src_texts:
@@ -623,7 +663,7 @@ def create_app(args):
                     )
 
         if batch:
-            request.req_cost = max(1, len(q))
+            request.req_cost = max(1, len(src_texts))
 
         if source_lang == "auto":
             candidate_langs = detect_languages(src_texts)
@@ -649,28 +689,35 @@ def create_app(args):
 
         try:
             if batch:
-                batch_results = []
-                batch_alternatives = []
-                for text in q:
+                if isinstance(q, dict):
                     translator = src_lang.get_translation(tgt_lang)
                     if translator is None:
                         abort(400, description=_("%(tname)s (%(tcode)s) is not available as a target language from %(sname)s (%(scode)s)", tname=_lazy(tgt_lang.name), tcode=tgt_lang.code, sname=_lazy(src_lang.name), scode=src_lang.code))
 
-                    if text_format == "html":
-                        translated_text = unescape(str(translate_html(translator, text)))
-                        alternatives = [] # Not supported for html yet
-                    else:
-                        hypotheses = translator.hypotheses(text, num_alternatives + 1)
-                        translated_text = unescape(improve_translation_formatting(text, hypotheses[0].value))
-                        alternatives = filter_unique([unescape(improve_translation_formatting(text, hypotheses[i].value)) for i in range(1, len(hypotheses))], translated_text)
+                    batch_results, batch_alternatives = translate_dict(translator, q, num_alternatives, text_format)
+                else:
+                    batch_results = []
+                    batch_alternatives = []
+                    for text in q:
+                        translator = src_lang.get_translation(tgt_lang)
+                        if translator is None:
+                            abort(400, description=_("%(tname)s (%(tcode)s) is not available as a target language from %(sname)s (%(scode)s)", tname=_lazy(tgt_lang.name), tcode=tgt_lang.code, sname=_lazy(src_lang.name), scode=src_lang.code))
 
-                    batch_results.append(translated_text)
-                    batch_alternatives.append(alternatives)
-                
+                        if text_format == "html":
+                            translated_text = unescape(str(translate_html(translator, text)))
+                            alternatives = [] # Not supported for html yet
+                        else:
+                            hypotheses = translator.hypotheses(text, num_alternatives + 1)
+                            translated_text = unescape(improve_translation_formatting(text, hypotheses[0].value))
+                            alternatives = filter_unique([unescape(improve_translation_formatting(text, hypotheses[i].value)) for i in range(1, len(hypotheses))], translated_text)
+
+                        batch_results.append(translated_text)
+                        batch_alternatives.append(alternatives)
+                    
                 result = {"translatedText": batch_results}
 
                 if source_lang == "auto":
-                    result["detectedLanguage"] = [detected_src_lang] * len(q)
+                    result["detectedLanguage"] = detected_src_lang
                 if num_alternatives > 0:
                     result["alternatives"] = batch_alternatives
 
