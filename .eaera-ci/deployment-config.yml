@@ -4,9 +4,4 @@ main:
     - tags:
       - main.latest
       - main.${{ build.commit_sha }}
-  deploy:
-    - infra_repo: eaera-com/cbs-chart
-      branch: main
-      values:
-        - from: main.
-          to: main.${{ build.commit_sha }}
+      args: ["-f", "dockerfile/Dockerfile"]
