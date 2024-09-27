@@ -19,7 +19,7 @@ spec:
         ports:
         - containerPort: 5000
         volumeMounts:
-        - name: libretranslate-model
+        - name: libretranslate-data
           mountPath: /home/libretranslate/.local
         env:
         - name: LT_UPDATE_MODELS
@@ -27,7 +27,7 @@ spec:
         - name: LT_API_KEYS
           value: "true"
         - name: LT_API_KEYS_DB_PATH
-          value: /home/libretranslate/.local/api_keys.db
+          value: /home/libretranslate/.local/db/api_keys.db
         {{ if .Values.env }}
         {{- range .Values.env }}
         - name: {{ .name }}
@@ -64,11 +64,11 @@ spec:
       #   image: busybox
       #   command: ["sh", "-c", "chmod -R 777 /home/libretranslate/.local"]
       #   volumeMounts:
-      #   - name: libretranslate-model
+      #   - name: libretranslate-data
       #     mountPath: /home/libretranslate/.local
 
       volumes:
-      - name: libretranslate-model
+      - name: libretranslate-data
         persistentVolumeClaim:
-          claimName: libretranslate-model
+          claimName: libretranslate-data
       
