@@ -1,0 +1,7 @@
+main:
+  enable: true
+  build:
+    - tags:
+      - main.latest
+      - main.${{ build.commit_sha }}
+      args: ["-f", "docker/Dockerfile"]
