@@ -59,13 +59,13 @@ spec:
         {{- end }}
       {{- end }}
 
-      initContainers:
-      - name: volume-mount-hack
-        image: busybox
-        command: ["sh", "-c", "chmod 777 /home/libretranslate/.local"]
-        volumeMounts:
-        - name: libretranslate-data
-          mountPath: /home/libretranslate/.local
+      # initContainers:
+      # - name: volume-mount-hack
+      #   image: busybox
+      #   command: ["sh", "-c", "chmod 777 /home/libretranslate/.local"]
+      #   volumeMounts:
+      #   - name: libretranslate-data
+      #     mountPath: /home/libretranslate/.local
 
       imagePullSecrets:
         - name: eaera-acr
