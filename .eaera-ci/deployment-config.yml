@@ -4,4 +4,4 @@ main:
     - tags:
       - main.latest
       - main.${{ build.commit_sha }}
-    dockerfile: docker/Dockerfile
+      args: ["-f", "docker/Dockerfile"]
