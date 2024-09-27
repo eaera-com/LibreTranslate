@@ -2,8 +2,10 @@
 docker*
 .Dockerfile.swp
 
-chart/
+charts/
 .editorconfig
 *.yaml
 *.md
 !README.md
+
+db/

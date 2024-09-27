@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: libretranslate
-        image: {{ .Values.image | default (print "eaera.azurecr.io/eaera-com/libre_translate:latest") }}
+        image: {{ .Values.image | default (print "eaera.azurecr.io/eaera-com/libre_translate:main.latest") }}
         ports:
         - containerPort: 5000
         volumeMounts:
