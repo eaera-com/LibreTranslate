@@ -31,9 +31,17 @@ if __name__ == "__main__":
 
     # Dump language list so it gets picked up by pybabel
     langs_file = os.path.join(locales_dir, ".langs.py")
+    lang_names = {}
     with open(langs_file, 'w') as f:
         for l in languages:
             f.write("_(%s)\n" % json.dumps(l.name))
+            lang_names[l.name] = True
+
+        # Additional names that might be missing
+        for l in ["Serbian", "Ukrainian", "Vietnamese"]:
+            if not l in lang_names:
+                f.write("_(%s)\n" % json.dumps(l))
+                lang_names[l] = True
     print("Wrote %s" % langs_file)
 
     # Dump swagger strings
@@ -66,10 +74,11 @@ if __name__ == "__main__":
         'zt': 'zh_Hant'
     }
     lang_codes = [lang_map.get(l.code, l.code) for l in languages if l.code != "en"]
+    all_folders = [d for d in os.listdir(locales_dir) if os.path.isdir(os.path.join(locales_dir, d))]
     review_map = {}
 
     # Init/update
-    for l in lang_codes:
+    for l in all_folders:
         cmd = "init"
         if os.path.isdir(os.path.join(locales_dir, l, "LC_MESSAGES")):
             cmd = "update"
@@ -82,7 +91,7 @@ if __name__ == "__main__":
         if not os.path.isfile(meta_file):
             with open(meta_file, 'w') as f:
                 f.write(json.dumps({
-                    'name': next(lang.name for lang in languages if lang_map.get(lang.code, lang.code) == l),
+                    'name': l if l not in lang_codes else next(lang.name for lang in languages if lang_map.get(lang.code, lang.code) == l),
                     'reviewed': False
                 }, indent=4))
                 print("Wrote %s" % meta_file)
@@ -96,7 +105,6 @@ if __name__ == "__main__":
     # when a language model is available and a string is empty
 
     locales = get_available_locale_codes(only_reviewed=False)
-    print(locales)
     for locale in locales:
         if locale == 'en':
             continue

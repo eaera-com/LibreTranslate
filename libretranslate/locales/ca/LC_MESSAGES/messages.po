@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LibreTranslate 1.3.12\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-08 13:24-0400\n"
+"POT-Creation-Date: 2024-09-22 13:38-0400\n"
 "PO-Revision-Date: 2024-03-07 08:01+0000\n"
 "Last-Translator: d <dmanye@gmail.com>\n"
 "Language-Team: Catalan <https://hosted.weblate.org/projects/libretranslate/app/ca/>\n"
@@ -301,6 +301,18 @@ msgstr "ucraïnès"
 #: libretranslate/locales/.langs.py:44
 msgid "Urdu"
 msgstr "UrdúName"
+
+#: libretranslate/locales/.langs.py:45
+msgid "Serbian"
+msgstr "SerbiName"
+
+#: libretranslate/locales/.langs.py:46
+msgid "Ukrainian"
+msgstr "UcraïnèsName"
+
+#: libretranslate/locales/.langs.py:47
+msgid "Vietnamese"
+msgstr "VietnamitaName"
 
 #: libretranslate/locales/.swag.py:1
 msgid "Retrieve list of supported languages"

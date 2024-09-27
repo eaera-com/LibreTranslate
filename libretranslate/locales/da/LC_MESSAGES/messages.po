@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LibreTranslate 1.3.9\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-08 13:24-0400\n"
+"POT-Creation-Date: 2024-09-22 13:38-0400\n"
 "PO-Revision-Date: 2024-06-09 17:09+0000\n"
 "Last-Translator: Luna <social.pvxuu@slmail.me>\n"
 "Language-Team: Danish <https://hosted.weblate.org/projects/libretranslate/app/da/>\n"
@@ -301,6 +301,18 @@ msgstr "Ukrainsk"
 #: libretranslate/locales/.langs.py:44
 msgid "Urdu"
 msgstr "Urdu"
+
+#: libretranslate/locales/.langs.py:45
+msgid "Serbian"
+msgstr "Serbisk serbisk"
+
+#: libretranslate/locales/.langs.py:46
+msgid "Ukrainian"
+msgstr "Ukraine"
+
+#: libretranslate/locales/.langs.py:47
+msgid "Vietnamese"
+msgstr "Vietnamesisk"
 
 #: libretranslate/locales/.swag.py:1
 msgid "Retrieve list of supported languages"
