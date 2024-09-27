@@ -1,7 +1,7 @@
 namespace: libretranslate
-domain: uk2.eaera.com
+domain: sea2.eaera.com
 ingress:
-  host: libretranslate.uk2.eaera.com
+  host: libretranslate.sea2.eaera.com
 storage:
   size: 32Gi
   storageClassName: premium2-disk-sc
