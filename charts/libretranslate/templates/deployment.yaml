@@ -67,6 +67,9 @@ spec:
       #   - name: libretranslate-data
       #     mountPath: /home/libretranslate/.local
 
+      imagePullSecrets:
+        - name: eaera-acr
+
       volumes:
       - name: libretranslate-data
         persistentVolumeClaim:
