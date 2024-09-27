@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LibreTranslate 1.3.9\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-08-08 13:24-0400\n"
+"POT-Creation-Date: 2024-09-22 13:38-0400\n"
 "PO-Revision-Date: 2023-02-27 19:38+0000\n"
 "Last-Translator: Simona Iacob <s@zp1.net>\n"
 "Language-Team: Romanian <https://hosted.weblate.org/projects/libretranslate/app/ro/>\n"
@@ -299,6 +299,18 @@ msgstr "Ucraineană"
 #: libretranslate/locales/.langs.py:44
 msgid "Urdu"
 msgstr "Urdu"
+
+#: libretranslate/locales/.langs.py:45
+msgid "Serbian"
+msgstr "Sârbă"
+
+#: libretranslate/locales/.langs.py:46
+msgid "Ukrainian"
+msgstr "Ucraineană"
+
+#: libretranslate/locales/.langs.py:47
+msgid "Vietnamese"
+msgstr "Vietnameză"
 
 #: libretranslate/locales/.swag.py:1
 msgid "Retrieve list of supported languages"
