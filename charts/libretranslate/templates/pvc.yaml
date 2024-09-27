@@ -1,0 +1,52 @@
+{{ if .Values.storage.persistentVolume.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.namespace }}-libretranslate-model
+  annotations:
+    pv.kubernetes.io/provisioned-by: disk.csi.azure.com
+spec:
+  capacity:
+    storage: {{ .Values.storage.size }}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.storage.storageClassName }}
+  csi:
+    driver: disk.csi.azure.com
+    volumeHandle: {{ .Values.storage.persistentVolume.volumeHandle }}
+    volumeAttributes:
+      fsType: ext4
+      cachingMode: None
+  claimRef:
+    namespace: {{ .Values.namespace }}
+    name: libretranslate-model
+  {{ if .Values.storage.dbNodeAffinity }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        {{ range $value := $.Values.storage.dbNodeAffinity }}
+        - matchExpressions:
+            - key: {{ $value.key }}
+              operator: {{ $value.operator }}
+              values:
+              - {{ $value.value }}
+        {{ end }}
+  {{ end }}
+{{ end }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: libretranslate-model
+  namespace: {{ .Values.namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  {{ if .Values.storage.persistentVolume }}
+  volumeName: {{ .Values.namespace }}-libretranslate-model
+  {{ end }}

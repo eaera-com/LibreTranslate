@@ -1,0 +1,19 @@
+namespace: libretranslate
+domain: uk2.eaera.com
+ingress:
+  host: libretranslate.uk2.eaera.com
+storage:
+  size: 20Gi
+  storageClassName: premium2-disk-sc
+  persistentVolume:
+    enabled: true
+    volumeHandle: /subscriptions/ca345c4a-2897-4c58-abce-a7598b1630cb/resourceGroups/MC_rg-eaera-sea_eaera-sea-2_southeastasia/providers/Microsoft.Compute/disks/OdooWebData
+  dbNodeAffinity:
+  - key: topology.disk.csi.azure.com/zone
+    operator: In
+    value: southeastasia-2
+tolerations:
+- key: agentpool
+  operator: Equal
+  value: app
+  effect: NoSchedule
